@@ -16,6 +16,7 @@ import {
 } from "firebase/auth";
 import { signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useDialogContext } from "@/lib/context/DialogContext";
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -26,6 +27,7 @@ export default function SignUp() {
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const {isLoginDialogActive, setIsLoginDialogActive} = useDialogContext();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -266,9 +268,9 @@ export default function SignUp() {
 
       <div className="mt-4 text-center text-sm">
         <span className="text-gray-400">Already have an account? </span>
-        <Link href="/login" className="text-[#26890d] hover:underline">
+        <button onClick={()=>setIsLoginDialogActive(!isLoginDialogActive)} className="text-[#26890d] hover:underline">
           Login
-        </Link>
+        </button>
       </div>
     </div>
   );

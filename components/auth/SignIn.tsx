@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+// import Link from "next/link";
 import { Label } from "../ui/label";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Input } from "../ui/input";
@@ -8,27 +8,66 @@ import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword, User } from "firebase/auth";
+import {
+  AuthProvider,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  User,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useDialogContext } from "@/lib/context/DialogContext";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const {isLoginDialogActive, setIsLoginDialogActive} = useDialogContext();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user: User = userCredential.user;
-        console.log("Successfully signin with email and password: ", user);
-        router.push("/dashboard");
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user: User = userCredential.user;
+      console.log("Successfully signin with email and password: ", user);
+      router.push("/dashboard");
     } catch (error) {
-        console.log("Error in signin with email and password: ", error);
-        throw error;
+      console.log("Error in signin with email and password: ", error);
+      throw error;
+    }
+  };
+
+  const signInandLink = async (provider: AuthProvider) => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      return user;
+    } catch (error) {
+      console.error("Error signing in:", error);
+      throw error;
+    }
+  };
+
+  const handleSignInWithGoogle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInandLink(provider);
+
+      console.log("result: ", result);
+      router.push("/dashboard");
+      //   await oauthSignin({ user: result });
+    } catch (error) {
+      console.log("error in signup with google: ", error);
+      throw error;
     }
   };
 
@@ -117,6 +156,7 @@ export default function SignIn() {
       <Button
         variant="outline"
         className="w-full border-gray-600 bg-transparent text-white hover:bg-[#252525] hover:text-white"
+        onClick={handleSignInWithGoogle}
       >
         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
           <path
@@ -141,9 +181,9 @@ export default function SignIn() {
 
       <div className="mt-4 text-center text-sm">
         <span className="text-gray-400">Don&apos;t have an account? </span>
-        <Link href="/login" className="text-[#26890d] hover:underline">
+        <button onClick={()=>setIsLoginDialogActive(!isLoginDialogActive)} className="text-[#26890d] hover:underline">
           Login
-        </Link>
+        </button>
       </div>
     </div>
   );
