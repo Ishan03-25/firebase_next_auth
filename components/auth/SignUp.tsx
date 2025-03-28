@@ -13,6 +13,7 @@ import {
   AuthProvider,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  TwitterAuthProvider,
 } from "firebase/auth";
 import { signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -27,7 +28,7 @@ export default function SignUp() {
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const {isLoginDialogActive, setIsLoginDialogActive} = useDialogContext();
+  const { isLoginDialogActive, setIsLoginDialogActive } = useDialogContext();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -73,6 +74,19 @@ export default function SignUp() {
         console.log("error in signup with google: ", error);
         throw error;
       }
+    }
+  };
+
+  const handleSignUpWithTwitter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const provider = new TwitterAuthProvider();
+      const result = await signInandLink(provider);
+      console.log("Result: ", result);
+      router.push("/dashboard");
+    } catch (error) {
+      console.log("Error in signup with twitter: ", error);
+      throw error;
     }
   };
   return (
@@ -266,9 +280,42 @@ export default function SignUp() {
         Google
       </Button>
 
+      <Button
+        variant="outline"
+        className="w-full border-gray-600 bg-transparent text-white hover:bg-[#252525] hover:text-white"
+        onClick={handleSignUpWithTwitter}
+      >
+        {/* <svg
+            className="mr-2 h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M18.94 0H22L14.56 10.03L23.5 24H16.44L10.97 15.92L4.61 24H1.06L9.03 13.33L0.5 0H7.81L12.72 7.36L18.94 0ZM17.66 21.81H19.79L6.56 2.06H4.28L17.66 21.81Z"
+              fill="#000000"
+            />
+          </svg> */}
+        <svg
+          className="mr-2 h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M23.954 4.569c-.885.39-1.83.654-2.825.775 1.014-.611 1.794-1.574 2.163-2.723-.951.555-2.005.959-3.127 1.184-.896-.959-2.173-1.56-3.591-1.56-2.719 0-4.92 2.201-4.92 4.917 0 .39.045.765.127 1.124-4.09-.205-7.719-2.165-10.148-5.144-.424.722-.666 1.561-.666 2.475 0 1.71.87 3.213 2.188 4.096-.807-.026-1.566-.248-2.228-.616v.061c0 2.385 1.693 4.374 3.946 4.827-.413.112-.849.171-1.296.171-.314 0-.615-.03-.916-.085.631 1.953 2.445 3.377 4.6 3.416-1.68 1.318-3.809 2.105-6.102 2.105-.395 0-.779-.023-1.17-.067 2.189 1.402 4.768 2.222 7.548 2.222 9.057 0 14.001-7.496 14.001-13.986 0-.209 0-.42-.015-.63.962-.695 1.8-1.56 2.46-2.548l-.047-.02z"
+            fill="#1DA1F2"
+          />
+        </svg>
+        Twitter
+      </Button>
+
       <div className="mt-4 text-center text-sm">
         <span className="text-gray-400">Already have an account? </span>
-        <button onClick={()=>setIsLoginDialogActive(!isLoginDialogActive)} className="text-[#26890d] hover:underline">
+        <button
+          onClick={() => setIsLoginDialogActive(!isLoginDialogActive)}
+          className="text-[#26890d] hover:underline"
+        >
           Login
         </button>
       </div>
